@@ -5,7 +5,20 @@ import Result from "./components/Result";
 import { useQuiz } from "./hooks/useQuiz";
 
 function App() {
-  const { state, login, answerQuestion, tick, restart } = useQuiz();
+  const {
+    state,
+    login,
+    register,
+    resume,
+    canResume,
+    authLoading,
+    authError,
+    authMessage,
+    answerQuestion,
+    tick,
+    restart,
+    logout,
+  } = useQuiz();
 
   useEffect(() => {
     if (!state.showResult && state.isLoggedIn && state.questions.length > 0) {
@@ -15,11 +28,21 @@ function App() {
   }, [state.showResult, state.isLoggedIn, state.questions.length, tick]);
 
   if (!state.isLoggedIn) {
-    return <Login onLogin={login} />;
+    return (
+      <Login
+        onSubmit={login}
+        onRegister={register}
+        onResume={resume}
+        canResume={canResume}
+        loading={authLoading}
+        error={authError}
+        message={authMessage}
+      />
+    );
   }
 
   if (state.showResult) {
-    return <Result state={state} onRestart={restart} />;
+    return <Result state={state} onRestart={restart} onLogout={logout} />;
   }
 
   return <Quiz state={state} onAnswer={answerQuestion} />;

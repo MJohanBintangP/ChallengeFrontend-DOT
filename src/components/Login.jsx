@@ -1,46 +1,43 @@
-import { useEffect, useState } from "react";
-import { loadState } from "../store/localStorage";
+import { useState } from "react";
 
-const Login = ({ onLogin }) => {
+const Login = ({ onSubmit, onRegister, loading, error, message }) => {
   const [username, setUsername] = useState("");
-  const [canResume, setCanResume] = useState(false);
+  const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    const checkResume = () => {
-      const saved = loadState("quizState");
-      setCanResume(
-        Boolean(
-          saved &&
-          saved.isLoggedIn &&
-          !saved.showResult &&
-          saved.questions?.length > 0,
-        ),
-      );
-    };
-    checkResume();
-    const interval = setInterval(checkResume, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const saved = loadState("quizState");
   return (
     <div className="login-container">
       <h2>Login</h2>
       <input
         type="text"
-        placeholder="Enter your name"
+        placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <button onClick={() => username && onLogin(username)}>Login</button>
-      {canResume && (
-        <button style={{ marginLeft: 8 }} onClick={() => onLogin(null)}>
-          Lanjutkan Kuis Sebelumnya
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          disabled={loading}
+          onClick={() => onSubmit?.({ username, password })}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
-      )}
-      <pre style={{ marginTop: 16, background: "#eee", fontSize: 12 }}>
-        {JSON.stringify(saved, null, 2)}
-      </pre>
+
+        <button
+          disabled={loading}
+          onClick={() => onRegister?.({ username, password })}
+        >
+          Register
+        </button>
+      </div>
+
+      {error ? <p style={{ color: "crimson" }}>{error}</p> : null}
+      {message ? <p style={{ color: "green" }}>{message}</p> : null}
     </div>
   );
 };

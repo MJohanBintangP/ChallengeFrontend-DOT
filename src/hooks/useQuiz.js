@@ -1,6 +1,7 @@
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { quizReducer, initialState } from "./useQuizReducer";
 import { saveState, loadState, clearState } from "../store/localStorage";
+import { loginWithUserTable, registerWithUserTable } from "../store/auth";
 
 const STORAGE_KEY = "quizState";
 const SOAL_API = "https://opentdb.com/api.php?amount=10";
@@ -18,9 +19,55 @@ export function useQuiz() {
     loadState(STORAGE_KEY) || initialState,
   );
 
-  const login = (user) => {
-    dispatch({ type: "LOGIN", payload: user });
-  };
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState(null);
+  const [authMessage, setAuthMessage] = useState(null);
+
+  const login = useCallback(async ({ username, password }) => {
+    setAuthError(null);
+    setAuthMessage(null);
+    setAuthLoading(true);
+    const result = await loginWithUserTable({ username, password });
+    setAuthLoading(false);
+
+    if (!result.ok) {
+      setAuthError(result.error);
+      return;
+    }
+
+    dispatch({ type: "LOGIN", payload: result.user.username });
+  }, []);
+
+  const register = useCallback(async ({ username, password }) => {
+    setAuthError(null);
+    setAuthMessage(null);
+    setAuthLoading(true);
+    const result = await registerWithUserTable({ username, password });
+    setAuthLoading(false);
+
+    if (!result.ok) {
+      setAuthError(result.error);
+      return;
+    }
+
+    setAuthMessage("Register berhasil. Anda sudah login.");
+    dispatch({ type: "LOGIN", payload: result.user.username });
+  }, []);
+
+  const resume = useCallback(() => {
+    const saved = loadState(STORAGE_KEY);
+    if (saved) dispatch({ type: "RESUME", payload: saved });
+  }, []);
+
+  const canResume = useMemo(() => {
+    const saved = loadState(STORAGE_KEY);
+    return Boolean(
+      saved &&
+      saved.isLoggedIn &&
+      !saved.showResult &&
+      saved.questions?.length > 0,
+    );
+  }, []);
 
   const answerQuestion = (answer) => {
     dispatch({ type: "ANSWER", payload: answer });
@@ -33,6 +80,11 @@ export function useQuiz() {
   const restart = () => {
     clearState(STORAGE_KEY);
     dispatch({ type: "RESTART" });
+  };
+
+  const logout = () => {
+    clearState(STORAGE_KEY);
+    dispatch({ type: "LOGOUT" });
   };
 
   useEffect(() => {
@@ -74,8 +126,15 @@ export function useQuiz() {
   return {
     state,
     login,
+    register,
+    resume,
+    canResume,
+    authLoading,
+    authError,
+    authMessage,
     answerQuestion,
     tick,
     restart,
+    logout,
   };
 }

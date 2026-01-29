@@ -1,4 +1,4 @@
-const Result = ({ state, onRestart }) => {
+const Result = ({ state, onRestart, onLogout }) => {
   const { answers, questions } = state;
   const total = questions.length;
   const answered = answers.length;
@@ -12,7 +12,10 @@ const Result = ({ state, onRestart }) => {
       <p>Jumlah Dijawab: {answered}</p>
       <p>Benar: {correct}</p>
       <p>Salah: {wrong}</p>
-      <button onClick={onRestart}>Ulangi Kuis</button>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={onRestart}>Ulangi Kuis</button>
+        <button onClick={onLogout}>Log out</button>
+      </div>
     </div>
   );
 };

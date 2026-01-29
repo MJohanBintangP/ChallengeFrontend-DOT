@@ -56,6 +56,9 @@ export function quizReducer(state, action) {
         loading: true,
       };
 
+    case "LOGOUT":
+      return { ...initialState };
+
     case "RESUME":
       return { ...action.payload };
 
