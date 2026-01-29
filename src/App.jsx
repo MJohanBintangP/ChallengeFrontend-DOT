@@ -1,21 +1,28 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QuizProvider } from "./store/QuizProvider";
-import Quiz from "./pages/Quiz";
-import Result from "./pages/Result";
-import Login from "./pages/Login";
+import { useEffect } from "react";
+import Login from "./components/Login";
+import Quiz from "./components/Quiz";
+import Result from "./components/Result";
+import { useQuiz } from "./hooks/useQuiz";
 
 function App() {
-  return (
-    <QuizProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/result" element={<Result />} />
-        </Routes>
-      </BrowserRouter>
-    </QuizProvider>
-  );
+  const { state, login, answerQuestion, tick, restart } = useQuiz();
+
+  useEffect(() => {
+    if (!state.showResult && state.isLoggedIn && state.questions.length > 0) {
+      const id = setInterval(tick, 1000);
+      return () => clearInterval(id);
+    }
+  }, [state.showResult, state.isLoggedIn, state.questions.length, tick]);
+
+  if (!state.isLoggedIn) {
+    return <Login onLogin={login} />;
+  }
+
+  if (state.showResult) {
+    return <Result state={state} onRestart={restart} />;
+  }
+
+  return <Quiz state={state} onAnswer={answerQuestion} />;
 }
 
 export default App;
