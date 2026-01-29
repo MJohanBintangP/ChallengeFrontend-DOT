@@ -42,7 +42,6 @@ export async function registerWithUserTable({ username, password }) {
   }
 
   try {
-    // Optional pre-check agar error lebih ramah (tetap butuh unique constraint di DB untuk aman)
     const { data: existing, error: checkError } = await supabase
       .from(userTable)
       .select("id")
