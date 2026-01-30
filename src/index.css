@@ -121,3 +121,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes toast-hide {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+    visibility: hidden;
+  }
+}
+
+@layer utilities {
+  .toast-auto-hide {
+    animation: toast-hide 3s ease forwards;
+  }
+}
