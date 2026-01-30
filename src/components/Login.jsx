@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +12,19 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const Login = ({ onSubmit, onRegister, loading, error, message }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [mode, setMode] = useState("login");
-
+const Login = ({
+  mode,
+  username,
+  password,
+  onUsernameChange,
+  onPasswordChange,
+  onToggleMode,
+  onSubmit,
+  onRegister,
+  loading,
+  error,
+  message,
+}) => {
   const isRegister = mode === "register";
 
   const title = isRegister ? "Register" : "Login";
@@ -32,10 +39,6 @@ const Login = ({ onSubmit, onRegister, loading, error, message }) => {
     : isRegister
       ? "Register"
       : "Login";
-
-  const handleToggleMode = () => {
-    setMode((currentMode) => (currentMode === "login" ? "register" : "login"));
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -87,7 +90,8 @@ const Login = ({ onSubmit, onRegister, loading, error, message }) => {
                 type="text"
                 placeholder="Username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => onUsernameChange?.(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2">
@@ -97,7 +101,8 @@ const Login = ({ onSubmit, onRegister, loading, error, message }) => {
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => onPasswordChange?.(e.target.value)}
+                disabled={loading}
               />
             </div>
 
@@ -119,7 +124,7 @@ const Login = ({ onSubmit, onRegister, loading, error, message }) => {
                 variant="link"
                 className="h-auto p-0 cursor-pointer"
                 disabled={loading}
-                onClick={handleToggleMode}
+                onClick={onToggleMode}
               >
                 Login
               </Button>
@@ -132,7 +137,7 @@ const Login = ({ onSubmit, onRegister, loading, error, message }) => {
                 variant="link"
                 className="h-auto p-0 cursor-pointer"
                 disabled={loading}
-                onClick={handleToggleMode}
+                onClick={onToggleMode}
               >
                 Daftar
               </Button>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Login from "./components/Login";
 import Quiz from "./components/Quiz";
 import Result from "./components/Result";
@@ -9,8 +9,9 @@ function App() {
     state,
     login,
     register,
-    resume,
     canResume,
+    resume,
+    startQuiz,
     authLoading,
     authError,
     authMessage,
@@ -19,6 +20,10 @@ function App() {
     restart,
     logout,
   } = useQuiz();
+
+  const [mode, setMode] = useState("login");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (!state.showResult && state.isLoggedIn && state.questions.length > 0) {
@@ -30,10 +35,16 @@ function App() {
   if (!state.isLoggedIn) {
     return (
       <Login
+        mode={mode}
+        username={username}
+        password={password}
+        onUsernameChange={setUsername}
+        onPasswordChange={setPassword}
+        onToggleMode={() =>
+          setMode((m) => (m === "login" ? "register" : "login"))
+        }
         onSubmit={login}
         onRegister={register}
-        onResume={resume}
-        canResume={canResume}
         loading={authLoading}
         error={authError}
         message={authMessage}
@@ -45,7 +56,17 @@ function App() {
     return <Result state={state} onRestart={restart} onLogout={logout} />;
   }
 
-  return <Quiz state={state} onAnswer={answerQuestion} />;
+  return (
+    <Quiz
+      state={state}
+      onAnswer={answerQuestion}
+      onRetry={startQuiz}
+      onStart={startQuiz}
+      canResume={canResume}
+      onResume={resume}
+      onLogout={logout}
+    />
+  );
 }
 
 export default App;

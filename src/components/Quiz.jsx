@@ -27,6 +27,47 @@ const LoadingState = () => (
   </QuizContainer>
 );
 
+const ErrorState = ({ message, onRetry }) => (
+  <QuizContainer>
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <CardTitle className="text-xl">Gagal memuat soal</CardTitle>
+        <CardDescription>{message}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button className="w-full cursor-pointer" onClick={() => onRetry?.()}>
+          Coba Lagi
+        </Button>
+      </CardContent>
+    </Card>
+  </QuizContainer>
+);
+
+const StartState = ({ onStart, onLogout }) => (
+  <QuizContainer>
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold">Siap mulai kuis?</CardTitle>
+        <CardDescription>Tekan Start untuk memulai kuiz.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Button className="w-full cursor-pointer" onClick={() => onStart?.()}>
+          Start Quiz
+        </Button>
+        {onLogout ? (
+          <Button
+            variant="destructive"
+            className="w-full cursor-pointer"
+            onClick={() => onLogout?.()}
+          >
+            Log Out
+          </Button>
+        ) : null}
+      </CardContent>
+    </Card>
+  </QuizContainer>
+);
+
 const ProgressBar = ({ current, total }) => {
   const progress = ((current + 1) / total) * 100;
 
@@ -81,9 +122,36 @@ const QuizOption = ({ option, index, onSelect }) => {
   );
 };
 
-const Quiz = ({ state, onAnswer }) => {
-  const { questions, current, timer } = state;
+const Quiz = ({
+  state,
+  onAnswer,
+  onRetry,
+  onStart,
+  canResume,
+  onResume,
+  onLogout,
+}) => {
+  const { questions, current, timer, loading, error } = state;
   const currentQuestion = questions[current];
+
+  if (error) {
+    return <ErrorState message={error} onRetry={onRetry} />;
+  }
+
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (questions.length === 0) {
+    return (
+      <StartState
+        onStart={onStart}
+        canResume={canResume}
+        onResume={onResume}
+        onLogout={onLogout}
+      />
+    );
+  }
 
   if (!currentQuestion) {
     return <LoadingState />;

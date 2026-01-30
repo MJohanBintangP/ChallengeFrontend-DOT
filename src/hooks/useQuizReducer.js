@@ -7,6 +7,7 @@ export const initialState = {
   timer: 60,
   showResult: false,
   loading: false,
+  error: null,
 };
 
 export function quizReducer(state, action) {
@@ -16,7 +17,15 @@ export function quizReducer(state, action) {
         ...state,
         isLoggedIn: true,
         user: action.payload,
+        loading: false,
+        error: null,
+      };
+
+    case "QUIZ_LOADING":
+      return {
+        ...state,
         loading: true,
+        error: null,
       };
 
     case "SET_QUESTIONS":
@@ -28,6 +37,18 @@ export function quizReducer(state, action) {
         answers: [],
         timer: 60,
         showResult: false,
+        error: null,
+      };
+
+    case "SET_ERROR":
+      return {
+        ...state,
+        loading: false,
+        questions: [],
+        current: 0,
+        answers: [],
+        showResult: false,
+        error: action.payload,
       };
 
     case "ANSWER": {
@@ -53,14 +74,19 @@ export function quizReducer(state, action) {
         ...initialState,
         isLoggedIn: true,
         user: state.user,
-        loading: true,
+        loading: false,
+        error: null,
       };
 
     case "LOGOUT":
       return { ...initialState };
 
     case "RESUME":
-      return { ...action.payload };
+      return {
+        ...action.payload,
+        isLoggedIn: true,
+        user: state.user ?? action.payload?.user ?? null,
+      };
 
     default:
       return state;
